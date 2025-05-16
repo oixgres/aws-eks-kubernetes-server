@@ -7,11 +7,15 @@ provider "aws" {
 }
 
 module "network" {
-  
+    source = "./network"
 }
 
 module "resources" {
-  
+    source = "./resources"
+    cluster_name = aws_eks_cluster.eks_cluster.name
+    private_subnets = [module.network.private_az1_id, module.network.private_az2_id]
+    public_subnets = [module.network.public_az1_id, module.network.public_az2_id]
+    issuer = aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
 }
 
 module "access" {
