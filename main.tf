@@ -1,8 +1,8 @@
 provider "aws" {
     region = "us-east-1"
     # only if required
-    # access_key = "<your access key>"
-    # secret_key = "<your secret access key"
+    access_key = "AKIAVRUVVA32CFWUAJ4L"
+    secret_key = "FmtE4onNtXgGuxl8eMSk9H1u33aC5cFuxq1biTv7"
     # profile = "<aws assummed profile>"
 }
 
@@ -19,7 +19,8 @@ module "resources" {
 }
 
 module "access" {
-  
+    source = "./access"
+    cluster_name = aws_eks_cluster.eks_cluster.name
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
@@ -55,9 +56,14 @@ resource "aws_eks_cluster" "eks_cluster" {
 
     vpc_config {
         subnet_ids = [
-
+            module.network.private_az1_id,
+            module.network.private_az2_id,
+            module.network.public_az1_id,
+            module.network.public_az2_id
         ]
     }
 
-    depends_on = [ aws_iam_role_po ]
+    depends_on = [ 
+        aws_iam_role_policy_attachment.eks_cluster_role_attachment
+    ]
 }
