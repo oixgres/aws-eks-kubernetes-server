@@ -1,8 +1,8 @@
 provider "aws" {
     region = "us-east-1"
     # only if required
-    access_key = "AKIAVRUVVA32CFWUAJ4L"
-    secret_key = "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"
+    access_key = "AKIAQ3EGULRWBMTGCEH2"
+    secret_key = "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"
     # profile = "<aws assummed profile>"
 }
 
@@ -52,9 +52,13 @@ resource "aws_eks_cluster" "eks_cluster" {
 
     access_config {
         authentication_mode = "API"
+        bootstrap_cluster_creator_admin_permissions = true
     }
 
     vpc_config {
+        endpoint_private_access = false
+        endpoint_public_access = true
+
         subnet_ids = [
             module.network.private_az1_id,
             module.network.private_az2_id,

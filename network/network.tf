@@ -1,5 +1,9 @@
 resource "aws_vpc" "k8svpc" {
-    cidr_block = "192.168.0.0/16"
+    cidr_block = "10.0.0.0/16"
+
+    enable_dns_support = true
+    enable_dns_hostnames =  true
+
     tags = {
         name = "k8svpc"
     }
@@ -13,6 +17,7 @@ resource "aws_internet_gateway" "k8svpc_igw" {
 }
 
 resource "aws_eip" "nat_eip" {
+    domain = "vpc"
     tags = {
         name = "nat_eip"
     }
