@@ -6,7 +6,7 @@ resource "aws_eks_pod_identity_association" "ebs_csi_driver" {
 }
 
 resource "aws_eks_addon" "pod_identity" {
-    cluster_name = "eks"
+    cluster_name = var.cluster_name
     addon_name = "eks-pod-identity-agent"
     addon_version = "v1.2.0-eksbuild.1"
 }

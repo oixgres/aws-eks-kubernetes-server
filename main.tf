@@ -1,8 +1,8 @@
 provider "aws" {
     region = "us-east-1"
     # only if required
-    access_key = ""
-    secret_key = ""
+    access_key = "AKIAW3MEFM2JUEMS3ANL"
+    secret_key = "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"
     # profile = "<aws assummed profile>"
 }
 
