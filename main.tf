@@ -6,6 +6,22 @@ provider "aws" {
     # profile = "<aws assummed profile>"
 }
 
+data "aws_eks_cluster" "eks" {
+    name=aws_eks_cluster.eks_cluster.name
+}
+
+data "aws_eks_cluster_auth" "eks" {
+    name = aws_eks_cluster.eks_cluster.name
+}
+
+provider "helm" {
+    kubernetes = {
+        host = data.aws_eks_cluster.eks.endpoint
+        cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
+        token = data.aws_eks_cluster_auth.eks.token
+    }
+}
+
 module "network" {
     source = "./network"
 }
@@ -70,4 +86,12 @@ resource "aws_eks_cluster" "eks_cluster" {
     depends_on = [ 
         aws_iam_role_policy_attachment.eks_cluster_role_attachment
     ]
+}
+
+module "load_balancer" {
+    source = "./load_balancing"
+    vpc_id = module.network.vpc_id
+    cluster_name = aws_eks_cluster.eks_cluster.name
+
+    # depends_on = [ aws_eks_cluster.eks_cluster ] # autoscaler if defined
 }
