@@ -34,3 +34,7 @@ resource "aws_nat_gateway" "k8s_nat" {
     depends_on = [ aws_internet_gateway.k8svpc_igw ]
 }
 
+output "vpc_id" {
+    description = "id of the vpc used for the eks cluster"
+    value = aws_vpc.k8svpc.id
+}
