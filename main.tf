@@ -1,97 +1,161 @@
-provider "aws" {
-    region = "us-east-1"
-    # only if required
+locals {
     access_key = ""
     secret_key = ""
-    # profile = "<aws assummed profile>"
 }
 
-data "aws_eks_cluster" "eks" {
-    name=aws_eks_cluster.eks_cluster.name
+provider "aws" {
+    alias = "us"
+    region = "us-east-1"
+    access_key = local.access_key
+    secret_key = local.secret_key
 }
 
-data "aws_eks_cluster_auth" "eks" {
-    name = aws_eks_cluster.eks_cluster.name
+provider "aws" {
+    alias = "us2"
+    region = "us-west-2"
+    access_key = local.access_key
+    secret_key = local.secret_key
 }
 
-provider "helm" {
-    kubernetes = {
-        host = data.aws_eks_cluster.eks.endpoint
-        cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
-        token = data.aws_eks_cluster_auth.eks.token
+locals {
+    cluster_name = "eks"
+}
+
+module "roles" {
+    source = "./roles"
+    cluster_name = local.cluster_name
+
+    providers = {
+        aws = aws.us
     }
 }
 
-module "network" {
-    source = "./network"
+module "eks-na1" {
+    source = "./clusters"
+    region = "us-east-1"
+
+    cluster_name = local.cluster_name
+
+    cluster_role_arn = module.roles.cluster_arn
+    node_role_arn = module.roles.node_arn
+    ebs_csi_role_arn = module.roles.ebs_csi_driver_arn
+
+    providers = {
+        aws = aws.us
+    }
 }
 
-module "resources" {
-    source = "./resources"
-    cluster_name = aws_eks_cluster.eks_cluster.name
-    private_subnets = [module.network.private_az1_id, module.network.private_az2_id]
-    public_subnets = [module.network.public_az1_id, module.network.public_az2_id]
-    issuer = aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
-}
+module "eks-na2" {
+    source = "./clusters"
+    region = "us-west-2"
 
-module "access" {
-    source = "./access"
-    cluster_name = aws_eks_cluster.eks_cluster.name
-}
+    cluster_name = local.cluster_name
 
-resource "aws_iam_role" "eks_cluster_role" {
-    name = "eks_cluster_role"
-    assume_role_policy = jsonencode(({
-        Version = "2012-10-17"
-        Statement = [{
-            Action = [
-                "sts:AssumeRole",
-                "sts:TagSession"
-            ]
-            Effect = "Allow"
-            Principal = {
-                Service = "eks.amazonaws.com"
-            }
-        }]
-    }))
-}
+    cluster_role_arn = module.roles.cluster_arn
+    node_role_arn = module.roles.node_arn
+    ebs_csi_role_arn = module.roles.ebs_csi_driver_arn
 
-resource "aws_iam_role_policy_attachment" "eks_cluster_role_attachment" {
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-    role = aws_iam_role.eks_cluster_role.name
-}
-
-resource "aws_eks_cluster" "eks_cluster" {
-    name = "eks"
-    role_arn = aws_iam_role.eks_cluster_role.arn
-    version = "1.31"
-
-    access_config {
-        authentication_mode = "API"
-        bootstrap_cluster_creator_admin_permissions = true
+    providers = {
+        aws = aws.us2
     }
 
-    vpc_config {
-        endpoint_private_access = false
-        endpoint_public_access = true
-
-        subnet_ids = [
-            module.network.private_az1_id,
-            module.network.private_az2_id,
-            module.network.public_az1_id,
-            module.network.public_az2_id
-        ]
-    }
-
-    depends_on = [ 
-        aws_iam_role_policy_attachment.eks_cluster_role_attachment
-    ]
+    depends_on = [ module.eks-na1 ]
 }
 
-module "load_balancer" {
-    source = "./load_balancing"
-    vpc_id = module.network.vpc_id
-    cluster_name = aws_eks_cluster.eks_cluster.name
+# provider "aws" {
+#     region = "us-east-1"
+#     # only if required
+#     access_key = "AKIAVRUVURGOUKLXRDWV"
+#     secret_key = "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"
+#     # profile = "<aws assummed profile>"
+# }
 
-    # depends_on = [ aws_eks_cluster.eks_cluster ] # autoscaler if defined
-}
+# data "aws_eks_cluster" "eks" {
+#     name=aws_eks_cluster.eks_cluster.name
+# }
+
+# data "aws_eks_cluster_auth" "eks" {
+#     name = aws_eks_cluster.eks_cluster.name
+# }
+
+# provider "helm" {
+#     kubernetes {
+#         host = data.aws_eks_cluster.eks.endpoint
+#         cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
+#         token = data.aws_eks_cluster_auth.eks.token
+#     }
+# }
+
+# module "network" {
+#     source = "./network"
+# }
+
+# module "resources" {
+#     source = "./resources"
+#     cluster_name = aws_eks_cluster.eks_cluster.name
+#     private_subnets = [module.network.private_az1_id, module.network.private_az2_id]
+#     public_subnets = [module.network.public_az1_id, module.network.public_az2_id]
+#     issuer = aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+# }
+
+# module "access" {
+#     source = "./access"
+#     cluster_name = aws_eks_cluster.eks_cluster.name
+# }
+
+# resource "aws_iam_role" "eks_cluster_role" {
+#     name = "eks_cluster_role"
+#     assume_role_policy = jsonencode(({
+#         Version = "2012-10-17"
+#         Statement = [{
+#             Action = [
+#                 "sts:AssumeRole",
+#                 "sts:TagSession"
+#             ]
+#             Effect = "Allow"
+#             Principal = {
+#                 Service = "eks.amazonaws.com"
+#             }
+#         }]
+#     }))
+# }
+
+# resource "aws_iam_role_policy_attachment" "eks_cluster_role_attachment" {
+#     policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+#     role = aws_iam_role.eks_cluster_role.name
+# }
+
+# resource "aws_eks_cluster" "eks_cluster" {
+#     name = "eks"
+#     role_arn = aws_iam_role.eks_cluster_role.arn
+#     version = "1.31"
+
+#     access_config {
+#         authentication_mode = "API"
+#         bootstrap_cluster_creator_admin_permissions = true
+#     }
+
+#     vpc_config {
+#         endpoint_private_access = false
+#         endpoint_public_access = true
+
+#         subnet_ids = [
+#             module.network.private_az1_id,
+#             module.network.private_az2_id,
+#             module.network.public_az1_id,
+#             module.network.public_az2_id
+#         ]
+#     }
+
+#     depends_on = [ 
+#         aws_iam_role_policy_attachment.eks_cluster_role_attachment
+#     ]
+# }
+
+# module "load_balancer" {
+#     source = "./load_balancing"
+#     vpc_id = module.network.vpc_id
+#     cluster_name = aws_eks_cluster.eks_cluster.name
+
+#     # depends_on = [ aws_eks_cluster.eks_cluster ] # autoscaler if defined
+# }
