@@ -58,8 +58,6 @@ module "eks-na2" {
     providers = {
         aws = aws.us2
     }
-
-    depends_on = [ module.eks-na1 ]
 }
 
 # provider "aws" {

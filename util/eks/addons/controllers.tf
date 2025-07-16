@@ -58,5 +58,5 @@ resource "helm_release" "load_balancer_controller" {
         }
     ]
 
-    depends_on = [ aws_eks_addon.pod_identity ]
+    depends_on = [ aws_eks_pod_identity_association.load_balancer_controller ]
 }
