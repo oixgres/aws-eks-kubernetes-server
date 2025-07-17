@@ -19,6 +19,14 @@ spec:
     namespace: jenkins
   local:
     path: /mnt
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: eks.amazonaws.com/nodegroup
+          operator: In
+          values:
+          - "public"
   accessModes:
     - ReadWriteOnce
   storageClassName: local-storage
