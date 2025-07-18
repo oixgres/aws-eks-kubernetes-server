@@ -1,0 +1,20 @@
+name: check syntax
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get code
+      uses: actions/checkout@v3
+    # node js example
+    # - name: Install NodeJS
+    #   uses: actions/setup-node@v3
+    #   with:
+    #     node-version: 18
+    # - name: Install dependencies
+    #   run: npm ci # ensure we don't install a breaking version
+    # - name: Run tests
+    #   run: npm test
+    # end of node js example
+    - name: Print msg
+      run: echo "Hello world";
