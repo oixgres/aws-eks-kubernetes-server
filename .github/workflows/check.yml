@@ -18,3 +18,8 @@ jobs:
     # end of node js example
     - name: Print msg
       run: echo "Hello world";
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print msg
+        run: echo "Deploying"
