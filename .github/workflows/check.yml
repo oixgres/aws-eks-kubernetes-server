@@ -19,6 +19,7 @@ jobs:
     - name: Print msg
       run: echo "Hello world";
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Print msg
