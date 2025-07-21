@@ -1,5 +1,9 @@
 name: Output Information
-on: workflow_dispatch
+on: 
+  workflow_dispatch: # only works in the default branch if not specified
+  push:
+    branches: 
+    - feature/github-workflow
 jobs:
   info:
     runs-on: ubuntu-latest
