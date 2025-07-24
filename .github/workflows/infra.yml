@@ -5,6 +5,10 @@ on:
 jobs:
   check-terraform-syntax:
     runs-on: ubuntu-latest
+    environment: prd
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+      AWS_ACCESS_SECRET_KEY: ${{ secrets.SECRET_KEY }}
     steps:
     - name: Get Code
       uses: actions/checkout@v3
