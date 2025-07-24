@@ -4,6 +4,8 @@ on:
   push:
     branches: 
     - feature/github-workflow
+    # paths-ignore: # prevents the activation of the workflow when change is applied on listed paths
+    # - # path to ignore
 jobs:
   info:
     runs-on: ubuntu-latest

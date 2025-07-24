@@ -1,0 +1,30 @@
+name: infrastructure workflow
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  check-terraform-syntax:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get Code
+      uses: actions/checkout@v3
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ secrets.TERRAFORM_VERSION }}
+    - name: Terraform Init
+      run: terraform init
+    - name: Terraform Format
+      run: terraform fmt -check -recursive
+    - name: Terraform Validate
+      run: terraform validate -no-color
+    - name: Terraoform Plan
+      id: plan
+      run: terraform plan -no-color
+    # - name: Terraform Add Plan as Comment
+    #   uses: actions/github-script@v6
+    #   env:
+    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
