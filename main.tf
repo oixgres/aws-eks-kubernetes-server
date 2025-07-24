@@ -1,20 +1,11 @@
-locals {
-    access_key = ""
-    secret_key = ""
-}
-
 provider "aws" {
     alias = "us"
     region = "us-east-1"
-    access_key = local.access_key
-    secret_key = local.secret_key
 }
 
 provider "aws" {
     alias = "us2"
     region = "us-west-2"
-    access_key = local.access_key
-    secret_key = local.secret_key
 }
 
 locals {
