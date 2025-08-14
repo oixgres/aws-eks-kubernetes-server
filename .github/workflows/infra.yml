@@ -5,22 +5,32 @@ on:
 jobs:
   check-terraform-syntax:
     runs-on: ubuntu-latest
+    environment: prd
     steps:
     - name: Get Code
       uses: actions/checkout@v3
+    # - name: Configure AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v4
+    #   with:
+    #     aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+    #     aws-secret-access-key: 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
-        terraform_version: ${{ secrets.TERRAFORM_VERSION }}
+        terraform_version: 1.5.0
+        terraform_wrapper: false
     - name: Terraform Init
       run: terraform init
-    - name: Terraform Format
-      run: terraform fmt -check -recursive
+    # - name: Terraform Format
+    #   run: terraform fmt -check
     - name: Terraform Validate
       run: terraform validate -no-color
     - name: Terraoform Plan
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
       id: plan
-      run: terraform plan -no-color
+      run: terraform plan -no-color -parallelism=1
     # - name: Terraform Add Plan as Comment
     #   uses: actions/github-script@v6
     #   env:
