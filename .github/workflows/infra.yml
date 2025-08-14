@@ -18,9 +18,9 @@ jobs:
     #   run: terraform fmt -check -recursive
     - name: Terraform Validate
       run: terraform validate -no-color
-    - name: Terraoform Plan
-      id: plan
-      run: terraform plan -no-color
+    # - name: Terraoform Plan
+    #   id: plan
+    #   run: terraform plan -no-color
     # - name: Terraform Add Plan as Comment
     #   uses: actions/github-script@v6
     #   env:
