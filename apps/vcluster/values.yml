@@ -1,0 +1,8 @@
+parameters:
+  # admin
+  - name: admin.create
+    value: "true"
+  - name: admin.username
+    value: admin1
+  - name: admin.password
+    value: password1
