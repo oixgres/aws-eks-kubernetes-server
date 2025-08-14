@@ -30,7 +30,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.SECRET_KEY }}
       id: plan
-      run: terraform pla -no-color -parallelism=1
+      run: terraform plan -no-color -parallelism=1
     # - name: Terraform Add Plan as Comment
     #   uses: actions/github-script@v6
     #   env:
