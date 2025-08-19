@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcluster-platform-loadbalancer
+  namespace: vcluster-platform
+  annotations:
+    test: ""
+spec:
+  type: LoadBalancer
+  selector:
+    app: loft
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
