@@ -1,0 +1,23 @@
+apiVersion: management.loft.sh/v1
+kind: Team
+metadata:
+  name: acme-team
+spec:
+  displayName: acme-team
+  owner:
+    user: admin
+  access:
+    - verbs:
+        - "*"
+      subresources:
+        - "*"
+      users:
+        - admin
+    - name: vcluster-platform-access
+      verbs:
+        - get
+        - bind
+      subresources:
+        - clusters
+      teams:
+        - acme-team
