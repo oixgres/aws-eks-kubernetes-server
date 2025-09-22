@@ -1,0 +1,9 @@
+envValueFrom:
+  PASSWORD:
+    secretKeyRef:
+      name: vcluster-secret
+      key: password
+admin:
+  create: true
+  username: admin1
+  password: $PASSWORD
